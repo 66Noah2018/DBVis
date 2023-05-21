@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <head>
+        <title>Prototype</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- metro 4 -->
+        <link rel="stylesheet" href="https://cdn.metroui.org.ua/v4.3.2/css/metro-all.min.css">
+        <script src="https://cdn.metroui.org.ua/v4/js/metro.min.js"></script>
+        <!-- fontawesome v5 -->
+        <script src="https://kit.fontawesome.com/e64cafaf4a.js" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="./styles.css">
+        <script src="js/table.js"></script>
+        <script src="js/file.js"></script>
+        <!-- LeaderLine -->
+        <script src="./node_modules/leader-line/leader-line.min.js"></script>
+        <script> m4q.global(); </script>
+    </head>
+    <body onload="loadDatabase()">
+        <nav data-role="ribbonmenu">
+            <ul class="tabs-holder">
+                <li class="static" id="sidebar-toggle"><a>File</a></li>
+                <li><a href="#section-model">Model</a></li>
+            </ul>
+
+            <div class="content-holder">
+                <div class="section" id="section-model">
+                    <div class="group">
+                            <button class="ribbon-button" id="undoBtn" onclick="undo()" disabled>
+                                <span class="icon">
+                                    <span class="mif-undo"></span>
+                                </span>
+                                <span class="caption">Undo</span>
+                            </button>
+                            <button class="ribbon-button" id="redoBtn" onclick="redo()" disabled>
+                                <span class="icon">
+                                    <span class="mif-redo"></span>
+                                </span>
+                                <span class="caption">Redo</span>
+                            </button>
+                        <span class="title">Actions</span>
+                    </div>
+                    <div class="group">
+                        <button class="ribbon-button" id="unfold-more-all" onclick="showAllTableDetails()">
+                            <span class="icon">
+                                <span class="mif-unfold-more"></span>
+                            </span>
+                            <span class="caption">Show all table details</span>
+                        </button>
+                        <button class="ribbon-button" id="unfold-less-all" onclick="hideAllTableDetails()">
+                            <span class="icon">
+                                <span class="mif-unfold-less"></span>
+                            </span>
+                            <span class="caption">Hide all table details</span>
+                        </button>
+                        <span class="title">Tables</span>
+                    </div>
+                    <div class="group">
+                        <div class="ribbon-split-button">
+                            <button class="ribbon-main">
+                                <span class="icon">
+                                    <span class="far fa-object-group"></span>
+                                </span>
+                            </button>
+                            <span class="ribbon-split dropdown-toggle">Table group</span>
+                            <ul class="ribbon-dropdown" data-role="dropdown" data-duration="100" id="groups-dropdown-list">
+                            </ul>
+                        </div>
+                        <button class="ribbon-button" id="edit-groups" onclick="showGroupForm()">
+                            <span class="icon">
+                                <span class="far fa-edit"></span>
+                            </span>
+                            <span class="caption">Edit groups</span>
+                        </button>
+                        <span class="title">Groups</span>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        
+        <aside class="sidebar" id="sidebar-index" data-role="sidebar" data-toggle="#sidebar-toggle">
+            <ul class="sidebar-menu">
+                <li class="group-title">New</li>
+                <li><a href="./html/create-project.html"><span class="mif-file-empty icon"></span>New Project</a></li>
+                <li><a href="./html/open-project.html"><span class="mif-folder-open icon"></span>Open Project</a></li>
+                <li class="group-title">Project Options</li>
+                <li><a href="#" onclick="saveProject()"><span class="mif-floppy-disk icon"></span>Save Project</a></li>
+                <li><a href="./html/project-properties.html"><span class="mif-description icon"></span>Edit Project Properties</a></li>
+                <li class="group-title">Settings</li>
+                <li><a href="./html/preferences.html"><span class="mif-cogs icon"></span>Preferences</a></li>
+            </ul>
+        </aside>
+        
+        <div class="index-body" id="database-vis"></div>
+        <div class="group-form">
+            <h2>Groups</h2>
+            <div class="group-div">
+                <button onclick="addGroupRow()" class="add-group">Add group</button>
+                <table id="groups-table">
+                    <thead>
+                        <tr>
+                            <th>Group name</th>
+                            <th>Group color</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <button onclick="saveGroups()" class="save-groups">Save groups</button>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Prototype</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+         <!--metro 4--> 
+        <link rel="stylesheet" href="https://cdn.metroui.org.ua/v4.3.2/css/metro-all.min.css">
+        <!--<script src="https://cdn.metroui.org.ua/v4/js/metro.min.js"></script>-->
+         <!--fontawesome v5--> 
+        <script src="https://kit.fontawesome.com/e64cafaf4a.js" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="../styles.css">
+        <script src="../js/file.js"></script>
+        <script src="../js/table.js"></script>
+        <script>
+            function resizeIframe(obj) {
+              obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
+            }
+        </script>
+    </head>
+    <body>
+        <aside class="sidebar" id="file-sidebar" data-role="sidebar" data-static="lg">
+            <div class="sidebar-back">
+                <!-- via onclick because of iframe -->
+                <a href="#" onclick="top.window.location.href='../index.html'"><span class="far fa-arrow-alt-circle-left fa-2x"></span></a>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="group-title">New</li>
+                <li><a href="#" onclick="top.window.location.href='./create-project.html'"><span class="mif-file-empty icon"></span>New Project</a></li>
+                <li><a href="#" onclick="top.window.location.href='./open-project.html'"><span class="mif-folder-open icon"></span>Open Project</a></li>
+                <li class="group-title">Project Options</li>
+                <li><a href="#" onclick="saveProject(true)"><span class="mif-floppy-disk icon"></span>Save Project</a></li>
+                <li><a href="@" onclick="top.window.location.href='./project-properties.html'"><span class="mif-description icon"></span>Edit Project Properties</a></li>
+                <li class="group-title">Settings</li>
+                <li><a href="#" onclick="top.window.location.href='./preferences.html'"><span class="mif-cogs icon"></span>Preferences</a></li>
+            </ul>
+        </aside>
+    </body>
+</html>

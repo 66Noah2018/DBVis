@@ -1,0 +1,221 @@
+:root {
+    --bg-color: white;
+    --menu-bg-color: #f5f5f5;
+    --bg-color-dialog: snow;
+    --statusbar-bg-color: #707070;
+}
+
+.sidebar{
+    min-width: 230px;
+    background-color: var(--menu-bg-color)
+}
+
+#sidebar-index{
+    margin-top:25px; 
+    z-index: 10000;
+}
+
+.ribbon-button{
+    vertical-align: text-top
+}
+
+.sidebar-back{
+    width: fit-content; 
+    margin-left: 15px;
+    margin-top: 15px;
+}
+
+a{
+    color: black;
+}
+
+.sidebar-div{
+    height: inherit;
+}
+
+.databaseTable{
+    width: fit-content;
+    height: fit-content;
+}
+
+.sidebar-split {
+    width: 21%;
+    float: left;
+    overflow: hidden;
+    height: 100%;
+}
+
+.content-split {
+    width: 79%;
+    float: right;
+}
+
+#save-db-map-changes, #save-term-map-changes, #save-preferences-changes, #save-project-properties-changes {
+    float: right;
+}
+
+#save-preferences-changes, #save-project-properties-changes{
+    margin-right: 10px;
+    margin-top: -50px;
+}
+
+
+#save-project-properties-changes{
+    margin-top: 15px;
+}
+
+.form-group+.form-group, .form-group{
+    display: -webkit-box;
+}
+
+.dir-validity-btn {
+    margin-left: 60px;
+    width: 220px;
+}
+
+.split-fixed-sidebar {
+    width: 100%;
+    overflow-x: scroll;
+    padding-right: 10px;
+}
+
+#edit-properties .input, #preferences-form .input, #open-project input  {
+    width: 40em;
+    margin-left: 10px;
+}
+
+#selected-working-dir-edit {
+    color: red;
+    visibility: hidden;
+}
+
+#edit-properties input[type=text], #edit-properties input[type=number] {
+    width: 300px;
+    margin-left: 10px;
+}
+
+.error {
+    color: red;
+    margin-top: 0px !important;
+}
+
+.file{
+    max-width: 70vh;
+    margin-left: 10px;
+    width: 441px;
+}
+
+.index-body{
+    position: relative;
+    min-height: 80vh;
+    /*height: 800px;*/
+}
+
+.tableField{
+    font-size: small;
+}
+
+.mif-key{
+    color:gold;
+    transform: rotate(-45deg);
+}
+
+#open-project-load {
+    display: none;
+}
+
+.dialog{
+    position: fixed !important;
+    height: 204px;
+    width: 250px;
+    top: calc(50vh - 102px);
+    left: calc(50vw - 125px);
+    background-color: var(--bg-color-dialog);
+}
+
+.content-spinner{
+    width: fit-content;
+    height: fit-content;
+    margin: auto;
+}
+
+.edit-notify{
+    background-color: orange;
+}
+
+.save-success {
+    background-color: #60a917;
+    color: white;
+}
+
+.info-box-error {
+    background-color: red;
+}
+
+.selected-table{
+    background-color: rgba(164, 206, 249, 0.8) !important;
+    border-color: #1979ca !important;
+}
+
+.group-form{
+    position: absolute;
+    top: 175px;
+    left: calc(50vw - 200px);
+    margin-left: auto;
+    margin-right: auto;
+    background-color: var(--menu-bg-color);
+    width: 400px;
+    height: 500px;
+    border: solid 1px var(--statusbar-bg-color);
+    z-index: 2;
+    display: none;
+}
+
+.group-form h2{
+    margin-left: auto;
+    margin-right: auto;
+    width: fit-content;
+}
+
+.group-div{
+    width: 350px;
+    margin-left: 25px;
+}
+
+#groups-table td{
+    padding-right: 10px;
+    vertical-align: top;
+}
+
+.save-groups{
+    margin-left: 280px;
+    position: absolute;
+    bottom: 25px;
+}
+
+.add-group{
+    margin-left: 270px;
+}
+
+#groups-table input[type=text]{
+    width: 200px;
+}
+
+#groups-table .image-button{
+    padding: 0;
+}
+
+tr>td {
+  padding-bottom: 5px;
+}
+
+.group-dropdown-li{
+    margin-left: 10px;
+    margin-right: 10px;
+    padding-left: 0px !important;
+}
+
+#groups-dropdown-list{
+    padding-top: 5px;
+}
+

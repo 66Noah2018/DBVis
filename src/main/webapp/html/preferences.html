@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Prototype</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- metro 4 -->
+        <link rel="stylesheet" href="https://cdn.metroui.org.ua/v4.3.2/css/metro-all.min.css">
+        <script src="https://cdn.metroui.org.ua/v4/js/metro.min.js"></script>
+        <!-- fontawesome v5 -->
+        <script src="https://kit.fontawesome.com/e64cafaf4a.js" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="../styles.css">
+        <script src="../js/file.js"></script>
+        <script src="../js/table.js"></script>
+    </head>
+    <body onload="showPreferences(); setSidebarHeight();">
+        <div class="split-fixed-sidebar">
+            <div class="sidebar-split">
+                <iframe id="sidebar-fixed" src="sidebar-fixed.html"></iframe>
+            </div>
+            <div class="content-split">
+                <h2>General preferences</h2>
+                <button class="image-button" id="save-preferences-changes" onclick="savePreferencesChanges()">
+                    <span class="mif-floppy-disk icon"></span>
+                    <span class="caption">Save changes</span>
+                </button>
+                <form id="preferences-form">
+                    <div class="form-group" id="default-working-dir-group">
+                        <label>Default working directory</label>
+                        <input type="text" data-role="input" name="defaultWorkingDirectory" id="defaultWorkingDirectory" onchange="removeClassesFromDefaultDirBtn()">
+                        <button class="button dir-validity-btn" id="checkDirBtn" onclick="checkDefaultDirValidity()">Check directory</button>
+                    </div>
+                    <div class="form-group">
+                        <div id="selected-working-dir-edit">Please check the working directory, it might be incorrect or unchecked</div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

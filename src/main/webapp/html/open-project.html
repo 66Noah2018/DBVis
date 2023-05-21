@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Prototype</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- metro 4 -->
+        <link rel="stylesheet" href="https://cdn.metroui.org.ua/v4.3.2/css/metro-all.css">
+        <script src="https://cdn.metroui.org.ua/v4/js/metro.min.js"></script>
+        <!-- fontawesome v5 -->
+        <script src="https://kit.fontawesome.com/e64cafaf4a.js" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="../styles.css">
+        <script src="../js/table.js"></script>
+        <script src="../js/file.js"></script>
+    </head>
+    <body onload="showPrevOpened(); setSidebarHeight();">
+        <div class="dialog" id="open-project-load">
+            <div class="dialog-title">Opening project</div>
+            <div class="dialog-content">
+                <div class="content-spinner">
+                    <span class="mif-spinner ani-pulse"></span>
+                </div>
+            </div>
+        </div>
+        <div class="split-fixed-sidebar">
+            <div class="sidebar-split">
+                <iframe id="sidebar-fixed" src="sidebar-fixed.html"></iframe>
+            </div>
+            <div class="content-split">
+                <div id="open-project">
+                    <h1 class="open-project">Open Project</h1>
+                    <input type="file" data-role="file" accept=".json" data-prepend="Open Project" data-button-title="<span class='mif-folder'></span>" onchange="openProject()" id="openProjectFileUpload">
+                    <h2 class="recently-opened">Recently Opened Projects</h2>
+                    <div id="prevOpenedList"></div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
