@@ -35,7 +35,7 @@ import static portfolio.dbvis.Utils.loadSettings;
 @WebServlet(name = "dbvisServlet", urlPatterns = {"/dbvisservlet"})
 public class dbvisServlet extends HttpServlet {
     // currentstate: linkedlist<Table> state, ArrayList<Triplet<groupId, groupName, groupColor(hex)>>
-    private Pair<LinkedList<Table>, ArrayList<Triplet<String, String, String>>> currentState = new Pair(new LinkedList<>(), new ArrayList<>());
+    private Pair<LinkedList<Table>, ArrayList<Group>> currentState = new Pair(new LinkedList<>(), new ArrayList<>());
     private String projectName = null;
     private String databaseFileName = null;
 
@@ -96,19 +96,52 @@ public class dbvisServlet extends HttpServlet {
                 break;
             case "setCoordinates":
                 setTableCoordinates(request);
+                response.getWriter().write("{\"state\":" + JSONEncoder.encodeDatabase(currentState.getValue0()) + "}");
+                break;
             case "addToGroup":
                 addTableToGroup(request);
-                response.getWriter().write("{\"state\":" + JSONEncoder.encodeDatabase(currentState.getValue0()) + "}");
+                response.getWriter().write("{\"state\":" + JSONEncoder.encodeDatabase(currentState.getValue0()) + ",\"groups\":" + JSONEncoder.encodeGroups(currentState.getValue1()) + "}");
+                break;
+            case "setGroupLocationAttributes":
+                setGroupLocationAttributes(request);
+                response.getWriter().write("{\"groups\":" + JSONEncoder.encodeGroups(currentState.getValue1()) + "}");
+                break;
             default:
                 break;
+        }
+    }
+    
+    private void setGroupLocationAttributes(HttpServletRequest request) throws IOException {
+        String requestBody = Utils.getBody(request);
+        Pattern groupPattern = Pattern.compile("\"groupId\":(.*),\"xCoordinate\":(.*),\"yCoordinate\":(.*),\"width\":(.*),\"length\":(.*)\\}");
+        Matcher groupMatcher = groupPattern.matcher(requestBody);
+        Boolean matchFound = groupMatcher.find();
+        if (matchFound) {
+            String groupId = groupMatcher.group(1).replace("\"", "");
+            Float xCoordinate = Float.parseFloat(groupMatcher.group(2));
+            Float yCoordinate = Float.parseFloat(groupMatcher.group(3));
+            Float width = Float.parseFloat(groupMatcher.group(4));
+            Float length = Float.parseFloat(groupMatcher.group(5));
+            
+            for (int i = 0; i < currentState.getValue1().size(); i++){
+                if (currentState.getValue1().get(i).getGroupId().equals(groupId)){
+                    ArrayList<Group> state = currentState.getValue1();
+                    Group newGroup = currentState.getValue1().get(i);
+                    newGroup.setXCoordinate(xCoordinate);
+                    newGroup.setYCoordinate(yCoordinate);
+                    newGroup.setWidth(width);
+                    newGroup.setLength(length);
+                    state.set(i, newGroup);
+                    currentState = new Pair<>(currentState.getValue0(), state);
+                    return;
+                }
+            }
         }
     }
     
     private void addTableToGroup(HttpServletRequest request) {
         String tableId = request.getParameter("tableId");
         String groupId = request.getParameter("groupId");
-        System.out.println(tableId);
-        System.out.println(groupId);
         for (int i = 0; i < currentState.getValue0().size(); i++){
             if (currentState.getValue0().get(i).getTableId().equals(tableId)){
                 LinkedList<Table> state = currentState.getValue0();
@@ -126,7 +159,7 @@ public class dbvisServlet extends HttpServlet {
         Pattern groupPattern = Pattern.compile("\"groups\":\\[(.*)\\]");
         Matcher groupMatcher = groupPattern.matcher(requestBody);
         groupMatcher.find();
-        ArrayList<Triplet<String, String, String>> groups = JSONDecoder.decodeGroups(groupMatcher.group(1));
+        ArrayList<Group> groups = JSONDecoder.decodeGroups(groupMatcher.group(1));
         currentState = new Pair<>(currentState.getValue0(), groups);        
     }
     
@@ -310,7 +343,7 @@ public class dbvisServlet extends HttpServlet {
         projectName = projectNameMatcher.group(1);
         
         LinkedList<Table> database = JSONDecoder.decodeDatabase(databaseMatcher.group(1));
-        ArrayList<Triplet<String, String, String>> groups = JSONDecoder.decodeGroups(groupsMatcher.group(1));      
+        ArrayList<Group> groups = JSONDecoder.decodeGroups(groupsMatcher.group(1));      
         
         currentState = new Pair(database, groups);
         Utils.updatePrevOpened(projectNameMatcher.group(1));

@@ -44,21 +44,25 @@ public class JSONDecoder {
         return database;
     }
     
-    public static Triplet<String, String, String> decodeGroup(String item){
-        System.out.println(item);
-        Pattern itemPattern = Pattern.compile("\"groupId\": \"(.*)\", \"groupName\": \"(.*)\", \"groupColor\": \"(.*)\"");
+    public static Group decodeGroup(String item){
+        Pattern itemPattern = Pattern.compile("\"groupId\":\"(.*)\",\"groupName\":\"(.*)\",\"groupColor\":\"(.*)\",\"xCoordinate\":(.*),\"yCoordinate\":(.*),\"width\":(.*),\"length\":(.*)");
         Matcher itemMatcher = itemPattern.matcher(item);
         itemMatcher.find();
         String id = (itemMatcher.group(1).equals("null")) ? randomUUID().toString() : itemMatcher.group(1);
+        Float xCoordinate = (itemMatcher.group(4).equals("null")) ? null : Float.parseFloat(itemMatcher.group(4));
+        Float yCoordinate = (itemMatcher.group(5).equals("null")) ? null : Float.parseFloat(itemMatcher.group(5));
+        Float width = (itemMatcher.group(6).equals("null")) ? null : Float.parseFloat(itemMatcher.group(6));
+        String tempLength = itemMatcher.group(7).replace("}", "").replace("]", "");
+        Float length = (tempLength.equals("null")) ? null : Float.parseFloat(tempLength);
         
-        return new Triplet(id, itemMatcher.group(2), itemMatcher.group(3));
+        return new Group (id, itemMatcher.group(2), itemMatcher.group(3), xCoordinate, yCoordinate, width, length);
     }
     
-    public static ArrayList<Triplet<String, String, String>> decodeGroups(String encodedGroups){
-        if (encodedGroups.equals("[]")) { return new ArrayList<Triplet<String, String, String>>(); }
+    public static ArrayList<Group> decodeGroups(String encodedGroups){
+        if (encodedGroups.equals("[]")) { return new ArrayList<Group>(); }
         
         ArrayList encodedGroupsList = new ArrayList<String>(Arrays.asList(encodedGroups.split("\\},\\{")));
-        ArrayList<Triplet<String, String, String>> groups = new ArrayList<>();
+        ArrayList<Group> groups = new ArrayList<>();
         
         for (int i = 0; i < encodedGroupsList.size(); i++){
             groups.add(decodeGroup((String) encodedGroupsList.get(i)));

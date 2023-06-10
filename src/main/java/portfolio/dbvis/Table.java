@@ -42,7 +42,7 @@ public class Table {
         this.tableName = tableName;
         this.tableFields = tableFields;
         this.xCoordinate = xCoordinate;
-        this.yCoordinate = xCoordinate;
+        this.yCoordinate = yCoordinate;
         this.groupId = groupId;
     }
     

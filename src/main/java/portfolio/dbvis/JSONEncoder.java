@@ -37,21 +37,20 @@ public class JSONEncoder {
         return result;
     }
     
-    public static String encodeGroup(Triplet<String, String, String> group) throws JsonProcessingException {
-        String result = "{\"groupId\": \"" + group.getValue0() + "\", \"groupName\": \"" + group.getValue1() + "\", \"groupColor\": \"" + group.getValue2() + "\"}";
+    public static String encodeGroup(Group group) throws JsonProcessingException {
+        String result = "{\"groupId\":\"" + group.getGroupId() + "\",\"groupName\":\"" + group.getGroupName() + "\",\"groupColor\":\"" + group.getGroupColor() + "\",\"xCoordinate\":" + group.getXCoordinate() + ",\"yCoordinate\":" + group.getYCoordinate() + ",\"width\":" + group.getWidth() + ",\"length\":" + group.getLength() + "}";
         
         return result;
     }
     
-    public static String encodeGroups(ArrayList<Triplet<String, String, String>> groups) throws JsonProcessingException{
+    public static String encodeGroups(ArrayList<Group> groups) throws JsonProcessingException{
         if (groups.size() == 0) { return "[]"; }
         String result = "[";
         
-        List<Triplet<String, String, String>> groupList = new ArrayList<>();
         for (int i = 0; i < groups.size(); i++){
-            result += encodeGroup(groups.get(i)) + ", ";
+            result += encodeGroup(groups.get(i)) + ",";
         }
-        result = result.substring(0, result.length() - 2);
+        result = result.substring(0, result.length() - 1);
         result += "]";
         
         return result;
