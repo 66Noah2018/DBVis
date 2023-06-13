@@ -224,4 +224,13 @@ tr>td {
 
 .table-panel{
     z-index: 1;
+    position: absolute;
+}
+
+.group-panel{
+    touch-action: none;
+    width: fit-content;
+    height: fit-content;
+    margin-right: 0px !important;
+    padding-right: 0px !important;
 }

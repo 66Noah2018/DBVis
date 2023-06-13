@@ -16,6 +16,36 @@
         <!-- LeaderLine -->
         <script src="./node_modules/leader-line/leader-line.min.js"></script>
         <script> m4q.global(); </script>
+        <!-- interact.js -->
+        <script type="module">
+            import 'https://cdn.interactjs.io/v1.9.20/auto-start/index.js'
+            import 'https://cdn.interactjs.io/v1.9.20/actions/drag/index.js'
+            import 'https://cdn.interactjs.io/v1.9.20/actions/resize/index.js'
+            import 'https://cdn.interactjs.io/v1.9.20/modifiers/index.js'
+            import 'https://cdn.interactjs.io/v1.9.20/dev-tools/index.js'
+            import interact from 'https://cdn.interactjs.io/v1.9.20/interactjs/index.js'
+
+            interact('.table-panel').draggable({
+                inertia: true,
+                autoscroll: true,
+                listeners: {
+                    // call this function on every dragmove event
+                    move: dragMoveListener,
+
+                    // call this function on every dragend event
+                    end: callTableUpdate
+                }                
+            });
+            
+            interact('.group-panel').draggable({
+                inertia: true,
+                autoscroll: true,
+                listeners: {
+                    move: dragMoveListener,
+                    end: callGroupUpdate
+                }
+            });
+          </script>
     </head>
     <body onload="loadDatabase()">
         <nav data-role="ribbonmenu">
@@ -93,7 +123,7 @@
         </aside>
         
         <div class="index-body" id="database-vis"></div>
-        <div class="group-form">
+        <div class="group-form"> 
             <h2>Groups</h2>
             <div class="group-div">
                 <button onclick="addGroupRow()" class="add-group">Add group</button>

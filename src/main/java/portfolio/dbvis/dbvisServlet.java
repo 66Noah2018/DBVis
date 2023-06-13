@@ -118,10 +118,10 @@ public class dbvisServlet extends HttpServlet {
         Boolean matchFound = groupMatcher.find();
         if (matchFound) {
             String groupId = groupMatcher.group(1).replace("\"", "");
-            Float xCoordinate = Float.parseFloat(groupMatcher.group(2));
-            Float yCoordinate = Float.parseFloat(groupMatcher.group(3));
-            Float width = Float.parseFloat(groupMatcher.group(4));
-            Float length = Float.parseFloat(groupMatcher.group(5));
+            Float xCoordinate = (groupMatcher.group(2).equals("null") ? null: Float.parseFloat(groupMatcher.group(2)));
+            Float yCoordinate = (groupMatcher.group(3).equals("null") ? null: Float.parseFloat(groupMatcher.group(3)));
+            Float width = (groupMatcher.group(4).equals("null") ? null: Float.parseFloat(groupMatcher.group(4)));
+            Float length = (groupMatcher.group(5).equals("null") ? null: Float.parseFloat(groupMatcher.group(5)));
             
             for (int i = 0; i < currentState.getValue1().size(); i++){
                 if (currentState.getValue1().get(i).getGroupId().equals(groupId)){

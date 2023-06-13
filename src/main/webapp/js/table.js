@@ -10,6 +10,32 @@ let usedGroupIds = {};
 let groupPanelIds = [];
 const panelCaptionHeight = 42;
 
+function callTableUpdate(event){ 
+    let target = event.target;
+    setSelectedItem((target.children[0].id).replace("panel-", ""), true);
+    updatePosition(selectedTableId); 
+}
+
+function callGroupUpdate(event){
+    let target = event.target;
+    let groupId = (target.id).replace("group-panel-", "");
+    updateGroupPosition(groupId);
+}
+
+function dragMoveListener (event) {
+  var target = event.target;
+  // keep the dragged position in the data-x/data-y attributes
+  var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+  var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+  // translate the element
+  target.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+
+  // update the posiion attributes
+  target.setAttribute('data-x', x);
+  target.setAttribute('data-y', y);
+}
+
 function addGroupRow(){
     let table = document.getElementById("groups-table").children[1];
     let row = table.insertRow();
@@ -19,11 +45,13 @@ function addGroupRow(){
     cell2.innerHTML = '<input type="color" data-role="input">';
 }
 
-function setSelectedItem (tableId){
-    if (selectedTableId === tableId) {
-        selectedTableId = null;
-        document.getElementById("panel-" + tableId).parentNode.classList.remove("selected-table");
-        return;
+function setSelectedItem (tableId, sourceMove = false){
+    if (!sourceMove) {
+        if (selectedTableId === tableId) {
+            selectedTableId = null;
+            document.getElementById("panel-" + tableId).parentNode.classList.remove("selected-table");
+            return;
+        }
     }
     
     if (selectedTableId !== null) { document.getElementById("panel-" + selectedTableId).parentNode.classList.remove("selected-table"); }
@@ -86,18 +114,20 @@ async function updatePosition(tableId){
         if (tableData.groupId !== "null" && tableData.groupId !== null) {
            await updateGroupDimensions(tableData.groupId);
         }
+        console.log(tableData);
     };
 }
 
 function positionPanel(xCoordinate, yCoordinate){ // either all panels have coordinates, or none have. therefore this approach is safe
     const panels = document.getElementsByClassName("panel");
     let latestPanel = panels.item(panels.length - 1);
+    latestPanel.style.width = "fit-content";
     
     if (xCoordinate === null || yCoordinate === null || xCoordinate === "null" || yCoordinate === "null") {
         let newX = lastX + 20;
         let panelWidth = latestPanel.getBoundingClientRect().width;
         let newY = lastY;
-        if ((newX + panelWidth) > maxX) { 
+        if ((newX + panelWidth) > maxX) {
             newX = 20;
             newY = lastY + highestPanelOnLine + 20;
             highestPanelOnLine = 0;
@@ -131,10 +161,9 @@ function drawTables(tables) {
         div.setAttribute("data-role", "panel");
         div.setAttribute("data-title-caption", table.tableName);
         div.setAttribute("data-collapsible", "true");
-        div.setAttribute("data-draggable", "true");
-        div.setAttribute("data-drag-area", "#database-vis");
+        div.setAttribute("data-width", "fit-content");
+        div.setAttribute("data-height", "fit-content");
         div.setAttribute("data-on-panel-create", "positionPanel(" + table.xCoordinate + ", " + table.yCoordinate + ");");
-        div.setAttribute("data-on-drag-stop", "updatePosition(\"" + table.tableId + "\");");
         div.setAttribute("id", "panel-" + table.tableId);
         div.classList.add("table-panel");
         tablePanelIds.push("panel-" + table.tableId);
@@ -168,24 +197,29 @@ function positionGroup(xCoordinate, yCoordinate, width, length, groupId) {
         "length": length
     }));
     http.onload = function(){
-        response = http.responseText;
+        response = JSON.parse(http.responseText);
         groups = response.groups;
+        console.log(groups);
     };
 }
 
 function updateGroupPosition(groupId){
     const panel = document.getElementById("group-panel-" + groupId);
+    const regex = /translate\((.*)px,(.*)px\)/gm;
+    const results = regex.exec(panel.style.transform);
+    const diffX = parseFloat(results[1]);
+    const diffY = parseFloat(results[2]);
     groups = JSON.parse(servletRequest("./dbvisservlet?function=getGroups")).groups;
     const groupData = groups.filter(group => group.groupId === groupId)[0];
-    console.log(groupData)
     const xCoordinate = groupData.xCoordinate;
     const yCoordinate = groupData.yCoordinate;
     const width = groupData.width; // width and length don't change if we move a panel
     const length = groupData.length;
-    const newX = parseFloat((panel.style.left).replace("px", ""));
-    const newY = parseFloat((panel.style.top).replace("px", ""));
-    const diffX = newX - xCoordinate;
-    const diffY = newY - yCoordinate;
+    const newX = parseFloat((panel.style.left).replace("px", "")) + diffX;
+    const newY = parseFloat((panel.style.top).replace("px", "")) + diffY;
+    panel.style.left = newX + "px";
+    panel.style.top = newY + "px";
+    panel.style.transform = "translate(0px, 0px)";
     // update state
     const http = new XMLHttpRequest();
     http.open("POST", "./dbvisservlet?function=setGroupLocationAttributes", true);
@@ -200,7 +234,7 @@ function updateGroupPosition(groupId){
     http.onload = function(){
         response = JSON.parse(http.responseText);
         groups = response.groups;
-        // TODO: move tables in this group
+        // move tables in this group
         const tablesToMove = usedGroupIds[groupId];
         tablesToMove.forEach(tableId => {
             let tablePanel = document.getElementById("panel-" + tableId).parentElement;
@@ -209,6 +243,7 @@ function updateGroupPosition(groupId){
             const currY = parseFloat((tablePanel.style.top).replace("px", ""));
             const newTableX = currX + diffX;
             const newTableY = currY + diffY;
+            console.log(newTableX, newTableY);
             tablePanel.style.left = newTableX + "px";
             tablePanel.style.top = newTableY + "px";
             // update table data
@@ -236,16 +271,14 @@ async function drawGroups(groupIds) {
         div.setAttribute("data-role", "panel");
         div.setAttribute("data-title-caption", group.groupName);
         div.setAttribute("data-collapsible", "true");
-        div.setAttribute("data-draggable", "true");
-        div.setAttribute("data-drag-area", "#database-vis");
         div.setAttribute("data-on-panel-create", "positionGroup(" + group.xCoordinate + ", " + group.yCoordinate + ", " + group.width + ", " + group.length + ", \"" + group.groupId + "\");");
-        div.setAttribute("data-on-drag-stop", "updateGroupPosition(\"" + group.groupId + "\");");
         div.setAttribute("id", "group-" + group.groupId);
         div.style.backgroundColor = group.groupColor;
         div.style.minHeight = "100px";
         div.style.minWidth = "200px";
         div.style.width = group.width + "px";
         div.style.height = group.length + "px";
+        div.classList.add("group-panel");
         groupPanelIds.push("group-" + group.groupId);
         await document.getElementById("database-vis").appendChild(div);
     }
@@ -273,7 +306,7 @@ function createGroupDropdown(){
     });
 }
 
-async function addToGroup(groupId){
+async function addToGroup(groupId){ // TODO: option: remove table from group --> option for no groups? separate button for no groups?
     // if group is already drawn, only move table, update dimensions and check other tables
     if (selectedTableId === null) { return; }
     const oldTableData = state.filter(table => table.tableId === selectedTableId)[0];
@@ -315,25 +348,6 @@ function moveTableIntoGroup(groupId){
     const groupXMax = group.xCoordinate + group.width;
     const groupYMin = group.yCoordinate;
     const groupYMax = group.yCoordinate + group.length + panelCaptionHeight;
-    /* 
-     * options:
-     * group x range: group.left, group.left + group.width
-     * group y range: group.top+42, group.top+42+group.height
-     * A corner within group bounds: tableXMin within x range && tableYMin within y range
-     * B corner within group bounds: tableXMax within x range && tableYMin within y range
-     * C corner within group bounds: tableXMax within x range && tableYMax within y range
-     * D corner within group bounds: tableXMin within x range && tableYMax within y range
-     */
-//    let aCornerOverlap = (group.xCoordinate <= tableXMin <= (group.xCoordinate + group.width)) && ((group.yCoordinate + panelCaptionHeight) <= tableYMin <= (group.yCoordinate + panelCaptionHeight + group.length));
-//    let bCornerOverlap = (group.xCoordinate <= tableXMax <= (group.xCoordinate + group.width)) && ((group.yCoordinate + panelCaptionHeight) <= tableYMin <= (group.yCoordinate + panelCaptionHeight + group.length));
-//    let cCornerOverlap = (group.xCoordinate <= tableXMax <= (group.xCoordinate + group.width)) && ((group.yCoordinate + panelCaptionHeight) <= tableYMax <= (group.yCoordinate + panelCaptionHeight + group.length));
-//    let dCornerOverlap = (group.xCoordinate <= tableXMin <= (group.xCoordinate + group.width)) && ((group.yCoordinate + panelCaptionHeight) <= tableYMax <= (group.yCoordinate + panelCaptionHeight + group.length));
-//    if (!aCornerOverlap && !bCornerOverlap && !cCornerOverlap && !dCornerOverlap) { // otherwise there is overlap and thus no need for moving tables!
-//        // we're gonna move it into the top-left corner of the group, the user can move it if they want/need to
-//        console.log("moving the table")
-//        tablePanel.style.top = (group.yCoordinate + panelCaptionHeight + 10) + "px";
-//        tablePanel.style.left = (group.xCoordinate + 10) + "px";
-//    }
     if (((tableYMax < groupYMin && tableYMax >= groupYMax) || (tableYMin < groupYMin && tableYMin > groupYMax)) &&
                 ((tableXMax < groupXMin && tableXMax > groupXMax) || (tableXMin < groupXMin && tableXMin > groupXMax))){
             console.log("moving table");
@@ -429,6 +443,7 @@ async function updateGroupDimensions (groupId){
         groupPanel.style.left = newLeftOffset + "px";
         response = http.responseText;
         groups = JSON.parse(response).groups;
+        console.log(groups);
         moveOtherTables(groupId);
     };
 }
