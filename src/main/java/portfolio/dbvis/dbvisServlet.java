@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -52,6 +53,11 @@ public class dbvisServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
+        if (Utils.sourcePath == null) {
+            ServletContext context = getServletContext();
+            String realContext = context.getRealPath(context.getContextPath());
+            Utils.sourcePath = realContext.split("\\\\target")[0];
+        }
         switch(request.getParameter("function")){
             case "getGroups": // get all groups
                 response.getWriter().write("{\"groups\":" + JSONEncoder.encodeGroups(currentState.getValue1()) + "}");

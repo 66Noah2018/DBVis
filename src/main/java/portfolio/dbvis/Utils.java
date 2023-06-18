@@ -39,6 +39,7 @@ public class Utils {
     public final static String settingsFileName = "dbvis_settings.json";
     public static String currentPath = "";
     public static ArrayNode prevOpened = new ObjectMapper().createArrayNode();
+    public static String sourcePath = null;
 
     public static String getBody(HttpServletRequest request) throws IOException {
         String body = null;
@@ -127,8 +128,11 @@ public class Utils {
     
     public static void writeSettings() throws IOException {
         String settingsString = "{";
-        settingsString += "\"prevOpened\":" + prevOpened.toPrettyString() + ",\"defaultWorkingDirectory\":\"" + defaultWorkingDirectory.replace("\\", "\\\\") + "\"}";
-        FileWriter settingsFile = new FileWriter(programFilesPath + "//" + settingsFileName);
+        settingsString += "\"prevOpened\":" + prevOpened.toPrettyString() + ",\"defaultWorkingDirectory\":";
+        if (defaultWorkingDirectory == null) { settingsString += "null}"; }
+        else {settingsString += "\"" + defaultWorkingDirectory.replace("\\", "\\\\") + "\"}"; }
+        settings = settingsString;
+        FileWriter settingsFile = new FileWriter(sourcePath + "\\" + settingsFileName); 
         settingsFile.write(settingsString);
         settingsFile.close();
     }
@@ -138,19 +142,14 @@ public class Utils {
             if (rootPath == "") {
                 determineOS();
             }
-            String fileLocation = programFilesPath + "\\" + settingsFileName;
+            String fileLocation = sourcePath + "\\" + settingsFileName;
+//            System.out.println(fileLocation);
             Path path = Paths.get(fileLocation);
             if (Files.exists(path)) {
                 settings = new String(Files.readAllBytes(path));
-            } else {
-                Iterator<File> localFileIteratorC = FileUtils.iterateFiles(new File(rootPath), extensions, true);
-                while(localFileIteratorC.hasNext() && fileLocation == null) {
-                    File file = localFileIteratorC.next();
-                    if (file.getName().equals(settingsFileName)) { fileLocation = file.getPath(); }
-                }
-                settings = new String(Files.readAllBytes(Paths.get(fileLocation)));
+            } else { 
+                writeSettings(); // if it isn't where it's supposed to be, we just write a new file ('cuase it doesn't exist or has been moved)
             }
-            if (fileLocation == null) { writeSettings(); }
             ObjectMapper mapper = new ObjectMapper();
             JsonNode settingsNode = mapper.readTree(settings);
             prevOpened = (ArrayNode) settingsNode.get("prevOpened");
@@ -208,19 +207,19 @@ public class Utils {
      
     public static Table statementToTable(String creationStatement) throws Exception{
         Pattern tablePattern = Pattern.compile("(CREATE|create)[ ]?(TEMPORARY|temporary)?[ ]?(TABLE|table)[ ]?(if not exists|IF NOT EXISTS)?[ ]?(.*)");
-        Matcher tableMatcher = tablePattern.matcher(creationStatement.strip());
+        Matcher tableMatcher = tablePattern.matcher(creationStatement.trim());
         Boolean tableMatchFound = tableMatcher.find();
         if (tableMatchFound){
             String match = tableMatcher.group(tableMatcher.groupCount());
             String[] matchSplit = match.split("\\(");
-            String tableName = matchSplit[0].strip();
+            String tableName = matchSplit[0].trim();
             String fieldsString = matchSplit[1];
             fieldsString = fieldsString.substring(0, fieldsString.length() - 1);
             String[] fields = fieldsString.split(",");
             ArrayList<String> tableFields = new ArrayList<>();
             
             for (String item : fields){
-                tableFields.add(item.strip());
+                tableFields.add(item.trim());
             }            
             return new Table(tableName, tableFields);
         }

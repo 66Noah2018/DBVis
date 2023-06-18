@@ -267,7 +267,9 @@ function removeClassesFromDirBtn(){
 }
 
 function showPrevOpened(){
+    console.log("gonna load prev opened")
     let prevOpened = JSON.parse(servletRequest("../dbvisservlet?function=getPrevOpened"));
+    console.log(prevOpened);
     let target = document.getElementById("prevOpenedList");
     let listCode = `<ul data-role="listview" data-view="table" data-select-node="true" data-structure='{"fileName": true, "lastEdited": true}'>`;
     target.innerHTML = "";
