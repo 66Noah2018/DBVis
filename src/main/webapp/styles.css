@@ -123,7 +123,7 @@ a{
     transform: rotate(-45deg);
 }
 
-#open-project-load {
+#open-project-load, #create-project-load {
     display: none;
 }
 

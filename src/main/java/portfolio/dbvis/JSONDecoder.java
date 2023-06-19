@@ -17,7 +17,7 @@ import org.javatuples.Triplet;
  */
 public class JSONDecoder {
     public static Table decodeItem(String item){
-        Pattern itemPattern = Pattern.compile("\"tableId\":\"(.*)\",\"tableName\":\"(.*)\",\"tableFields\":(.*),\"xCoordinate\":(.*),\"yCoordinate\":(.*),\"groupId\":\"(.*)\"}");
+        Pattern itemPattern = Pattern.compile("\"tableId\":\"(.*)\",\"tableName\":\"(.*)\",\"tableFields\":(.*),\"foreignKeys\":(.*),\"xCoordinate\":(.*),\"yCoordinate\":(.*),\"groupId\":\"(.*)\"}");
         Matcher itemMatcher = itemPattern.matcher(item);
         itemMatcher.find();
         
@@ -26,12 +26,18 @@ public class JSONDecoder {
             fieldsLong = fieldsLong.substring(1, fieldsLong.length() - 1);
         }
         
+        String foreignKeysLong = itemMatcher.group(4).replaceAll("\"", "");
+        if (foreignKeysLong.startsWith("[")) {
+            foreignKeysLong = foreignKeysLong.substring(1, foreignKeysLong.length() - 1);
+        }
+        
         ArrayList<String> fields = new ArrayList<String>(Arrays.asList(fieldsLong.split(",")));
-        Float xCoordinate = (itemMatcher.group(4).equals("null")) ? null : Float.parseFloat(itemMatcher.group(4));
-        Float yCoordinate = (itemMatcher.group(5).equals("null")) ? null : Float.parseFloat(itemMatcher.group(5));
-        String groupId = (itemMatcher.group(6).equals("null")) ? null : itemMatcher.group(6);
+        ArrayList<String> foreignKeys = new ArrayList<String>(Arrays.asList(foreignKeysLong.split(",")));
+        Float xCoordinate = (itemMatcher.group(5).equals("null")) ? null : Float.parseFloat(itemMatcher.group(5));
+        Float yCoordinate = (itemMatcher.group(6).equals("null")) ? null : Float.parseFloat(itemMatcher.group(6));
+        String groupId = (itemMatcher.group(7).equals("null")) ? null : itemMatcher.group(7);
 
-        return new Table(itemMatcher.group(1), itemMatcher.group(2), fields, xCoordinate, yCoordinate, groupId);
+        return new Table(itemMatcher.group(1), itemMatcher.group(2), fields, foreignKeys, xCoordinate, yCoordinate, groupId);
     }
     
     public static LinkedList<Table> decodeDatabase(String encodedChart) throws JsonProcessingException{

@@ -16,31 +16,35 @@ public class Table {
     private Float xCoordinate;
     private Float yCoordinate;
     private String groupId;
+    private ArrayList<String> foreignKeys;
     
     
-    public Table(String tableName, ArrayList<String> tableFields){
+    public Table(String tableName, ArrayList<String> tableFields, ArrayList<String> foreignKeys){
         UUID tableuuid = randomUUID();
         this.tableId = tableuuid.toString();
         this.tableName = tableName;
         this.tableFields = tableFields;
+        this.foreignKeys = foreignKeys;
         this.xCoordinate = null;
         this.yCoordinate = null;
         this.groupId = null;
     }
     
-    public Table(String tableId, String tableName, ArrayList<String> tableFields, String groupId){
+    public Table(String tableId, String tableName, ArrayList<String> tableFields, ArrayList<String> foreignKeys, String groupId){
         this.tableId = tableId;
         this.tableName = tableName;
         this.tableFields = tableFields;
+        this.foreignKeys = foreignKeys;
         this.xCoordinate = null;
         this.yCoordinate = null;
         this.groupId = groupId;
     }
     
-    public Table(String tableId, String tableName, ArrayList<String> tableFields, Float xCoordinate, Float yCoordinate, String groupId){
+    public Table(String tableId, String tableName, ArrayList<String> tableFields, ArrayList<String> foreignKeys, Float xCoordinate, Float yCoordinate, String groupId){
         this.tableId = tableId;
         this.tableName = tableName;
         this.tableFields = tableFields;
+        this.foreignKeys = foreignKeys;
         this.xCoordinate = xCoordinate;
         this.yCoordinate = yCoordinate;
         this.groupId = groupId;
@@ -52,6 +56,7 @@ public class Table {
     public Float getXCoordinate() { return this.xCoordinate; }
     public Float getYCoordinate() { return this.yCoordinate; }
     public String getGroupId() { return this.groupId; }
+    public ArrayList<String> getForeignKeys() { return this.foreignKeys; }
     
     public void setXCoordinate(Float xCoordinate) { this.xCoordinate = xCoordinate; }
     public void setYCoordinate(Float yCoordinate) { this.yCoordinate = yCoordinate; }

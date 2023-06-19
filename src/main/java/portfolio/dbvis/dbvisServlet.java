@@ -72,6 +72,7 @@ public class dbvisServlet extends HttpServlet {
                 break;
             case "editProject": // save project as DBVis file
                 editProject(request);
+                response.getWriter().write("{\"state\":" + JSONEncoder.encodeDatabase(currentState.getValue0()) + "}");
                 break;
             case "saveProject":
                 saveProject();

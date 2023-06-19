@@ -79,6 +79,7 @@ function clearErrorMessages(){
 }
 
 function editProject(isNew = false){
+    document.getElementById("create-project-load").style.display = "block";
     if (isNew) { properties = null; }
     invalidForm = false;
 //    clearErrorMessages();
@@ -104,8 +105,14 @@ function editProject(isNew = false){
     const projectJson = valuesToJson(projectTitle, databaseFileName, workingDir);
     servletRequestPost("../dbvisservlet?function=setWorkingDirectory", workingDir);
     const url = "../dbvisservlet?function=editProject&isNew=" + isNew;
-    servletRequestPost(url, projectJson);
-    window.location.href = "../index.html";
+    const http = new XMLHttpRequest(); 
+    http.open("POST", url, true);
+    http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    http.send(JSON.stringify(projectJson));
+    http.onload = function(){
+        document.getElementById("create-project-load").style.display = "hidden";
+        window.location.href = "../index.html";
+    };    
 }
 
 function editProjectProperties(){
@@ -287,7 +294,7 @@ function showDefaultWorkingDir(){
     let defaultWorkingDirectory = JSON.parse(servletRequest("../dbvisservlet?function=getDefaultWorkingDirectory")).defaultWorkingDirectory.replaceAll("\\\\", "\\");
     if (defaultWorkingDirectory === "null") { defaultWorkingDirectory = ""; }
     document.getElementById("workingDirectory").value = defaultWorkingDirectory;
-    document.getElementById("checkDirBtn").classList.add("success");
+    if (defaultWorkingDirectory !== "") { document.getElementById("checkDirBtn").classList.add("success"); }
 }
 
 function showPreferences(){

@@ -206,22 +206,66 @@ public class Utils {
     }
      
     public static Table statementToTable(String creationStatement) throws Exception{
-        Pattern tablePattern = Pattern.compile("(CREATE|create)[ ]?(TEMPORARY|temporary)?[ ]?(TABLE|table)[ ]?(if not exists|IF NOT EXISTS)?[ ]?(.*)");
-        Matcher tableMatcher = tablePattern.matcher(creationStatement.trim());
+        String trimmedStatement = creationStatement.trim();
+        trimmedStatement = trimmedStatement.replaceAll("\n", "/<CR>/");
+        trimmedStatement = trimmedStatement.replaceAll("`", "");
+        trimmedStatement = trimmedStatement.replaceAll("\"", "");
+        trimmedStatement = trimmedStatement.replaceAll("--[ ]*(.*?)/<CR>/", "");
+        trimmedStatement = trimmedStatement.replaceAll("/<CR>/", "");
+        Pattern tablePattern = Pattern.compile("(CREATE|create)[ ]?(TEMPORARY|temporary)?[ ]?(TABLE|table)[ ]?(if not exists|IF NOT EXISTS)?[ ]?(.*\\))");
+        Matcher tableMatcher = tablePattern.matcher(trimmedStatement);
         Boolean tableMatchFound = tableMatcher.find();
         if (tableMatchFound){
             String match = tableMatcher.group(tableMatcher.groupCount());
-            String[] matchSplit = match.split("\\(");
+            String[] matchSplit = match.split("\\(", 2);
             String tableName = matchSplit[0].trim();
             String fieldsString = matchSplit[1];
             fieldsString = fieldsString.substring(0, fieldsString.length() - 1);
             String[] fields = fieldsString.split(",");
             ArrayList<String> tableFields = new ArrayList<>();
+            ArrayList<String> foreignKeys = new ArrayList<>();
             
-            for (String item : fields){
-                tableFields.add(item.trim());
-            }            
-            return new Table(tableName, tableFields);
+            for (int i = 0; i < fields.length; i++) {
+                String item = fields[i].trim();
+                if (item.toLowerCase().contains("enum") || item.toLowerCase().contains("set")) {
+                    while (!item.contains(")")) { // combine until it does
+                        item += fields[i+1];
+                        i++;
+                    }
+                }
+                
+                if (item.toLowerCase().contains("float") || item.toLowerCase().contains("double") || item.toLowerCase().contains("decimal") || item.toLowerCase().contains("dec") || item.toLowerCase().contains("numeric") || item.toLowerCase().contains("primary key") || item.toLowerCase().contains("unique key") || item.toLowerCase().contains("foreign key")){
+                    while (!item.contains(")")){
+                        item += fields[i+1];
+                        i++;
+                    }
+                }
+                
+                if (item.toLowerCase().startsWith("primary key") || item.toLowerCase().startsWith("unique key")){
+                    Pattern primaryKeyPattern = Pattern.compile(".*\\((.*)\\)");
+                    Matcher primaryKeyMatcher = primaryKeyPattern.matcher(item);
+                    Boolean primaryKeyMatchFound = primaryKeyMatcher.find();
+                    if (primaryKeyMatchFound) {
+                        String[] keyFields = primaryKeyMatcher.group(1).trim().split(" ");
+                        for (String keyField : keyFields) {
+                            for (int j = 0; j < tableFields.size(); j++){
+                                if (tableFields.get(j).toLowerCase().startsWith(keyField.toLowerCase())) {
+                                    String newItem = tableFields.get(j);
+                                    if (item.toLowerCase().contains("primary key")) { newItem += " PRIMARY KEY"; }
+                                    else { newItem += " UNIQUE KEY"; }
+                                    tableFields.set(j, newItem);
+                                }
+                            }
+                        }
+                        
+                    }
+                } else if (item.toLowerCase().contains("foreign key")) {
+                    foreignKeys.add(item.trim());
+                    tableFields.add(item.trim());
+                }
+                else { tableFields.add(item.trim()); }
+            }
+            return new Table(tableName, tableFields, foreignKeys);
         }
         else {
             throw new Exception("invalid statement");

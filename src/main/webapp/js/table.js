@@ -289,6 +289,7 @@ function loadDatabase(){
     tablePanelIds = [];
     state = JSON.parse(servletRequest("./dbvisservlet?function=getState")).state;
     groups = JSON.parse(servletRequest("./dbvisservlet?function=getGroups")).groups;
+    console.log(state);
     drawTables(state);
     drawGroups(usedGroupIds);
 }

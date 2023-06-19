@@ -20,7 +20,17 @@ public class JSONEncoder {
         }
         tableFields = tableFields.substring(0, tableFields.length() - 1) + "]";
         
-        result += tableFields + ",\"xCoordinate\":" + item.getXCoordinate() + ",\"yCoordinate\":" + item.getYCoordinate() + ",\"groupId\":\"" + item.getGroupId() + "\"}";        
+        String foreignKeys = "[";
+        if (item.getForeignKeys().size() > 0) {
+            for (String field : item.getForeignKeys()){
+                foreignKeys += "\"" + field + "\",";
+            }
+            foreignKeys = foreignKeys.substring(0, foreignKeys.length() - 1) + "]";
+        } else { foreignKeys += "]"; }
+        
+        
+        
+        result += tableFields + ",\"foreignKeys\":" + foreignKeys + ",\"xCoordinate\":" + item.getXCoordinate() + ",\"yCoordinate\":" + item.getYCoordinate() + ",\"groupId\":\"" + item.getGroupId() + "\"}";        
         
         return result;
     }
