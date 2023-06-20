@@ -228,9 +228,21 @@ tr>td {
 }
 
 .group-panel{
-    touch-action: none;
     width: fit-content;
     height: fit-content;
     margin-right: 0px !important;
     padding-right: 0px !important;
+}
+
+.panel{
+    touch-action: none;
+}
+
+.leader-line{
+    z-index: 1;
+}
+
+.ribbon-menu{
+    z-index: 2;
+    background-color: white;
 }

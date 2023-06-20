@@ -12,9 +12,11 @@
         <script src="https://kit.fontawesome.com/e64cafaf4a.js" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="./styles.css">
         <script src="js/table.js"></script>
+        <script src="js/group.js"></script>
+        <script src="js/visualiser.js"></script>
         <script src="js/file.js"></script>
         <!-- LeaderLine -->
-        <script src="./node_modules/leader-line/leader-line.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/leader-line/1.0.3/leader-line.min.js" integrity="sha512-aFBNsI3+D6ObLLtyKwdZPZzDbcCC6+Bh+2UNV8HC0R95BpcBT+dmmZ5NMpJi/Ic8uO0W7FGcg33IfuHg+7Ryew==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
         <script> m4q.global(); </script>
         <!-- interact.js -->
         <script type="module">
@@ -122,7 +124,7 @@
             </ul>
         </aside>
         
-        <div class="index-body" id="database-vis"></div>
+        <div class="index-body" id="database-vis" onscroll="repositionLeaderLines();"></div>
         <div class="group-form"> 
             <h2>Groups</h2>
             <div class="group-div">
