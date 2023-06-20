@@ -48,8 +48,8 @@ function updateGroupPosition(groupId){
     const groupData = groups.filter(group => group.groupId === groupId)[0];
     const xCoordinate = groupData.xCoordinate;
     const yCoordinate = groupData.yCoordinate;
-    const width = groupData.width; // width and length don't change if we move a panel
-    const length = groupData.length;
+    const width = parseFloat((panel.children[0].style.width).replace("px", "")); 
+    const length = parseFloat((panel.children[0].style.height).replace("px", ""));
     const newX = parseFloat((panel.style.left).replace("px", "")) + diffX;
     const newY = parseFloat((panel.style.top).replace("px", "")) + diffY;
     panel.style.left = newX + "px";
