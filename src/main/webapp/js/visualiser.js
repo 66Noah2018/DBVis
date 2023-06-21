@@ -70,7 +70,7 @@ function drawForeignKeys() {
                 const references_field = fields[3];
                 const startEl = document.getElementById(tableName + "-" + field_curr_table);
                 const endEl = document.getElementById(references_table + "-" + references_field);
-                let line = new LeaderLine(startEl, endEl);
+                let line = new LeaderLine(startEl, endEl, {color: 'cornflowerblue', size: 3, startSocket: 'left', endSocket: 'left'});
                 leaderlines.push(line);
             }
         }
