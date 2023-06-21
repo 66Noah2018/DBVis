@@ -120,47 +120,9 @@ function editProjectProperties(){
     if (properties !== null){
         document.getElementById("checkDirBtn").classList.add("success"); 
         document.getElementById("selected-working-dir-edit").style.visibility = 'hidden';
-        document.getElementById("title").value = properties.maintenance.title;
-        document.getElementById("mlmname").value = properties.maintenance.mlmname;
-        document.getElementById("arden").value = properties.maintenance.arden;
-        document.getElementById("version").value = properties.maintenance.version;
-        document.getElementById("institution").value = properties.maintenance.institution;
-        document.getElementById("author").value = properties.maintenance.author;
-        document.getElementById("specialist").value = properties.maintenance.specialist;
-        document.getElementById("date").value = properties.maintenance.date;
-        switch(properties.maintenance.validation){
-            case "Production":
-                document.getElementById("Production").checked = true;
-                break;
-            case "Research":
-                document.getElementById("Research").checked = true;
-                break;
-            case "Testing":
-                document.getElementById("Testing").checked = true;
-                break;
-            case "Expired":
-                document.getElementById("Expired").checked = true;
-                break;
-            default:
-                break;
-        }
-        const libFormCode = getLibraryFormCode([properties.library.purpose, properties.library.explanation, properties.library.keywords, properties.library.citations, properties.library.links]);
-        let target = document.getElementById("edit-properties-section");
-        target.innerHTML = "";
-        target.appendChild(parser.parseFromString(libFormCode, 'text/html').body.firstChild);
-        document.getElementById("workingDirectory").value = properties.workingDirectory;
-        document.getElementById("selectedLocalFile").innerText = "Selected local mappings file: " + properties.localMappingFile;
-        document.getElementById("selectedLocalFile").style.visibility = "visible";
-        document.getElementById("selectedStandardizedFile").innerText = "Selected standardized mappings file: " + properties.standardizedMappingFile;
-        document.getElementById("selectedStandardizedFile").style.visibility = "visible";
-        let triggerTarget = document.getElementById("triggers-group");
-        triggerTarget.innerHTML = "";
-        let newRowsCode = '<table id="triggers-table-edit"><thead><tr><th>Trigger name</th><th>Trigger definition: event { ... }</th></tr></thead><tbody contenteditable>';
-        for (const trigger in properties.triggers) {
-            newRowsCode += "<tr><td>" + trigger + "</td><td>" + properties.triggers[trigger] + "</td></tr>";
-        }
-        newRowsCode += "</body></table>";
-        triggerTarget.appendChild(parser.parseFromString(newRowsCode, 'text/html').body.firstChild);
+        document.getElementById("title").value = properties.title;
+        document.getElementById("selected-databasefile-group").innerText = "Selected database file: " + properties.databaseFileName;
+        document.getElementById("workingDirectory").value = properties.workingDir;
     }   
 }
 
@@ -296,7 +258,6 @@ function showDefaultWorkingDir(){
 }
 
 function showPreferences(){
-    console.log(servletRequest("../dbvisservlet?function=getDefaultWorkingDirectory"))
     let defaultWorkingDirectory = JSON.parse(servletRequest("../dbvisservlet?function=getDefaultWorkingDirectory")).defaultWorkingDirectory.replaceAll("\\\\", "\\");
     if (defaultWorkingDirectory !== "null" && defaultWorkingDirectory !== null){
         document.getElementById("defaultWorkingDirectory").value = defaultWorkingDirectory;

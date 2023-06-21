@@ -1,9 +1,6 @@
 package portfolio.dbvis;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -11,7 +8,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
@@ -24,10 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FileUtils;
 import org.javatuples.Pair;
-import org.javatuples.Triplet;
 import static portfolio.dbvis.Utils.defaultWorkingDirectory;
-import static portfolio.dbvis.Utils.extensions;
-import static portfolio.dbvis.Utils.loadSettings;
 
 /**
  *
@@ -113,6 +106,9 @@ public class dbvisServlet extends HttpServlet {
                 setGroupLocationAttributes(request);
                 response.getWriter().write("{\"groups\":" + JSONEncoder.encodeGroups(currentState.getValue1()) + "}");
                 break;
+            case "setDefaultWorkingDirectory":
+                setDefaultWorkingDirectory(request);
+                break;
             default:
                 break;
         }
@@ -193,6 +189,12 @@ public class dbvisServlet extends HttpServlet {
                 }
             }
         }
+    }
+    
+    private void setDefaultWorkingDirectory (HttpServletRequest request) throws IOException {
+        String folder = Utils.getBody(request).replace("\"", "");
+        Utils.defaultWorkingDirectory = folder;
+        Utils.writeSettings();
     }
     
     private void setWorkingDirectory(HttpServletRequest request) throws IOException {

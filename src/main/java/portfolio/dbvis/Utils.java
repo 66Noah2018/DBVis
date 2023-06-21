@@ -194,7 +194,7 @@ public class Utils {
      public static String readProjectFromFile() throws IOException{
         if (!currentPath.equals("")) {
             String file =  new String(Files.readAllBytes(Paths.get(currentPath)));
-            String fileContent = file.substring(1, file.length());
+            String fileContent = file.substring(0, file.length());
             if (checkFileValidity(file)){
                 return fileContent;
             } else {

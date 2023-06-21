@@ -33,28 +33,31 @@
                     <span class="mif-floppy-disk icon"></span>
                     <span class="caption">Save changes</span>
                 </button>
-                <h2>Project properties</h2>
-                <form id="edit-properties">
-                    <div class="form-group">
-                        <label>Title</label>
+                <h2 class="form-title">Project properties</h2>
+                <div id="edit-properties">
+                    <div>
+                        <p class="form-header">Title</p>
                         <input type="text" class="metro-input" name="title" id="title">
                     </div>
                     <div class="form-group error" id="title-group"></div>
-                    <div class="form-group" id="database-group">
-                        <label>Database</label>
+                    <br>
+                    <div id="database-group">
+                        <p class="form-header">Database</p>
                         <input type="file" data-role="file" accept=".sql" data-prepend="Select database file" data-button-title="<span class='mif-folder'></span>" id="databaseFileUpload">
                     </div>
                     <div class="form-group error" id="database-group"></div>
-                    <div class="form-group" id="working-dir-group">
-                        <label>Working directory</label>
-                        <!--<input type="file" data-role="file" data-prepend="Select working directory" data-button-title="<span class='mif-folder'></span>" name="workingDirectory" id="workingDirectory" webkitdirectory mozdirectory onchange="showSelectedDir('create')">-->
-                        <input type="text" data-role="input" name="workingDirectory" id="workingDirectory" onchange="removeClassesFromDirBtn()">
-                        <button class="button dir-validity-btn" id="checkDirBtn" onclick="checkDirValidity()">Check directory</button>
+                    <br>
+                    <div id="working-dir-group">
+                        <p class="form-header">Working directory</p>
+                        <div class="working-dir-form-group">
+                           <input type="text" data-role="input" name="workingDirectory" id="workingDirectory" onchange="removeClassesFromDirBtn()">
+                            <button class="button dir-validity-btn" id="checkDirBtn" onclick="checkDirValidity()">Check directory</button>
+                        </div>
                     </div>
                     <div class="form-group">
                         <div id="selected-working-dir-edit">Please check the working directory, it might be incorrect or unchecked</div>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </body>
