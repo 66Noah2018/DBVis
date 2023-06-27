@@ -164,12 +164,14 @@ function moveTableIntoGroup(groupId){
     const groupYMax = group.yCoordinate + group.length + panelCaptionHeight;
     if (((tableYMax < groupYMin && tableYMax >= groupYMax) || (tableYMin < groupYMin && tableYMin > groupYMax)) &&
                 ((tableXMax < groupXMin && tableXMax > groupXMax) || (tableXMin < groupXMin && tableXMin > groupXMax))){
-            console.log("moving table");
-            tableYMin = groupYMin + 10;
-            tablePanel.style.top = tableYMin + "px";
-            tableXMin = groupXMin + 10;
-            tablePanel.style.left = tableXMin + "px";
-        }
+        console.log("moving table");
+        tableYMin = groupYMin + panelCaptionHeight + 10;
+        tablePanel.style.top = tableYMin + "px";
+        tableXMin = groupXMin + 10;
+        tablePanel.style.left = tableXMin + "px";
+    } else {
+        tablePanel.style.top = Math.max(tableYMin, (groupYMin + panelCaptionHeight + 10)) + "px";
+    }
 }
 
 function moveOtherTables (groupId) {

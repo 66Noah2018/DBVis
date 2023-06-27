@@ -216,6 +216,7 @@ tr>td {
 
 #groups-dropdown-list{
     padding-top: 5px;
+    width: max-content;
 }
 
 .table-panel{
