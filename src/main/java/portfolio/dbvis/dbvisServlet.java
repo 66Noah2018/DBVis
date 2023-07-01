@@ -105,6 +105,7 @@ public class dbvisServlet extends HttpServlet {
             case "setGroupLocationAttributes":
                 setGroupLocationAttributes(request);
                 response.getWriter().write("{\"groups\":" + JSONEncoder.encodeGroups(currentState.getValue1()) + "}");
+                System.out.println("done");
                 break;
             case "setDefaultWorkingDirectory":
                 setDefaultWorkingDirectory(request);
@@ -116,11 +117,11 @@ public class dbvisServlet extends HttpServlet {
     
     private void setGroupLocationAttributes(HttpServletRequest request) throws IOException {
         String requestBody = Utils.getBody(request);
-        Pattern groupPattern = Pattern.compile("\"groupId\":(.*),\"xCoordinate\":(.*),\"yCoordinate\":(.*),\"width\":(.*),\"length\":(.*)\\}");
+        Pattern groupPattern = Pattern.compile(".*groupId.*:(.*),.*xCoordinate.*:(.*),.*yCoordinate.*:(.*),.*width.*:(.*),.*length.*:(.*)\\}");
         Matcher groupMatcher = groupPattern.matcher(requestBody);
         Boolean matchFound = groupMatcher.find();
         if (matchFound) {
-            String groupId = groupMatcher.group(1).replace("\"", "");
+            String groupId = groupMatcher.group(1).replace("\\\"", "");
             Float xCoordinate = (groupMatcher.group(2).equals("null") ? null: Float.parseFloat(groupMatcher.group(2)));
             Float yCoordinate = (groupMatcher.group(3).equals("null") ? null: Float.parseFloat(groupMatcher.group(3)));
             Float width = (groupMatcher.group(4).equals("null") ? null: Float.parseFloat(groupMatcher.group(4)));

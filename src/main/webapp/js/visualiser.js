@@ -42,15 +42,13 @@ function setSelectedItem (tableId, sourceMove = false){
 
 function showAllTableDetails(){
     tablePanelIds.forEach(panel => {
-        document.getElementById(panel).style.display="block";
-        document.getElementById(panel).classList.remove("collapsed");
+        togglePanelContent(panel, false, true);
     });
 }
 
 function hideAllTableDetails(){
     tablePanelIds.forEach(panel => {
-        document.getElementById(panel).style.display="none";
-        document.getElementById(panel).classList.add("collapsed");
+        togglePanelContent(panel, true, false);
     });
 }
 
@@ -82,7 +80,6 @@ function loadDatabase(){
     tablePanelIds = [];
     state = JSON.parse(servletRequest("./dbvisservlet?function=getState")).state;
     groups = JSON.parse(servletRequest("./dbvisservlet?function=getGroups")).groups;
-    console.log(state);
     drawTables(state);
     drawGroups(usedGroupIds);
     drawForeignKeys();
@@ -104,10 +101,16 @@ function createGroupDropdown(){
 function servletRequest(url){
     const http = new XMLHttpRequest();
     http.open("GET", url, false);
+    let response = null;
+    http.onload = function() {
+//        while(http.readyState !== 4) {}
+        if (http.readyState === 4 && http.status === 200) {
+            response = http.responseText;
+        }
+    };
     http.send();
-    if (http.readyState === 4 && http.status === 200) {
-        return http.responseText;
-    }
+    while (response === null) {}
+    return response;
 }
 
 function showGroupForm(){
@@ -148,13 +151,15 @@ function saveGroups(){
     
     groups = groups.substring(0, groups.length - 1) + "]}";
     console.log(groups);
-    const http = new XMLHttpRequest(); // servletrequestpost doesnt work here, loading response somehow takes too long
-    http.open("POST", "./dbvisservlet?function=setGroups", true);
-    http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    http.send(groups);
-    http.onload = function(){ 
+    servletRequestPost("./dbvisservlet?function=setGroups", groups);
+//    const http = new XMLHttpRequest(); // servletrequestpost doesnt work here, loading response somehow takes too long
+//    http.open("POST", "./dbvisservlet?function=setGroups", true);
+//    http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+//    
+//    http.onload = function(){ 
         state = JSON.parse(servletRequest("./dbvisservlet?function=getState")).state;
         location.reload();
         drawTables(state);
-    };
+//    };
+//    http.send(groups);
 }

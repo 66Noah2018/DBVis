@@ -27,7 +27,7 @@ function tableToHTML (tableId, tableName, fieldList){
     return table;   
 }
 
-async function updatePosition(tableId){
+function updatePosition(tableId){
     const panel = document.getElementById("panel-" + tableId).parentNode;
     const regex = /translate\((.*)px,(.*)px\)/gm;
     const results = regex.exec(panel.style.transform);
@@ -42,25 +42,31 @@ async function updatePosition(tableId){
     panel.style.top = newY + "px";
     panel.style.transform = "translate(0px, 0px)";
     
-    const http = new XMLHttpRequest(); // servletrequestpost doesnt work here, loading response somehow takes too long
-    http.open("POST", "./dbvisservlet?function=setCoordinates", true);
-    http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    http.send(JSON.stringify({
+    const response = servletRequestPost("./dbvisservlet?function=setCoordinates", {
         "panelId": "panel-" + tableId,
         "x": newX,
         "y": newY
-    }));
-    http.onload = async function(){
-        state = JSON.parse(http.responseText).state;
+    });
+//    const http = new XMLHttpRequest(); // servletrequestpost doesnt work here, loading response somehow takes too long
+//    http.open("POST", "./dbvisservlet?function=setCoordinates", true);
+//    http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    
+//    http.onload = async function(){
+        state = JSON.parse(response).state;
         console.log(state);
         // check if in group, if so updateGroupDimensions
-        const tableData = state.filter(table => table.tableId === tableId)[0];
+//        const tableData = state.filter(table => table.tableId === tableId)[0];
         if (tableData.groupId !== "null" && tableData.groupId !== null) {
-           await updateGroupDimensions(tableData.groupId);
+           updateGroupDimensions(tableData.groupId);
         }
         repositionLeaderLines();
         
-    };
+//    };
+//    http.send(JSON.stringify({
+//        "panelId": "panel-" + tableId,
+//        "x": newX,
+//        "y": newY
+//    }));
 }
 
 function positionPanel(xCoordinate, yCoordinate){ // either all panels have coordinates, or none have. therefore this approach is safe
@@ -85,14 +91,19 @@ function positionPanel(xCoordinate, yCoordinate){ // either all panels have coor
         
         // update state
         const panelId = latestPanel.children.item(0).id;
-        const http = new XMLHttpRequest(); // servletrequestpost doesnt work here, loading response somehow takes too long
-        http.open("POST", "./dbvisservlet?function=setCoordinates", true);
-        http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-        http.send(JSON.stringify({
+        servletRequestPost("./dbvisservlet?function=setCoordinates", {
             "panelId": panelId,
             "x": newX,
             "y": newY
-        }));
+        });
+//        const http = new XMLHttpRequest(); // servletrequestpost doesnt work here, loading response somehow takes too long
+//        http.open("POST", "./dbvisservlet?function=setCoordinates", true);
+//        http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+//        http.send(JSON.stringify({
+//            "panelId": panelId,
+//            "x": newX,
+//            "y": newY
+//        }));
     } else {
         latestPanel.style.left = xCoordinate + "px";
         latestPanel.style.top = yCoordinate + "px";
@@ -100,22 +111,52 @@ function positionPanel(xCoordinate, yCoordinate){ // either all panels have coor
     repositionLeaderLines();
 }
 
+function createPanelElement(tableCode, table){
+    let div = document.createElement("div");
+    div.classList.add("panel");
+    div.classList.add("panel-default");
+    div.classList.add("table-panel");
+    div.innerHTML = `
+        <div class='panel-heading' id="panel-${table.tableId}">
+            <div class='panel-title'>${table.tableName}</div>
+            <button class='panel-arrow' onclick='togglePanelContent("panel-${table.tableId}");'>
+                <span class='mif-chevron-thin-up'></span>
+            </button>
+        </div>
+        <div class='panel-body' style="display:block;">${tableCode}</div>
+    `;
+    document.getElementById("database-vis").appendChild(div);
+    positionPanel(table.xCoordinate, table.yCoordinate);
+}
+
+function togglePanelContent(panelId, forceClose = false, forceOpen = false){
+    const panel = document.getElementById(panelId).parentElement;
+    let panelContent = panel.children.item(1);
+    const displayState = panelContent.style.display;
+    let panelArrow = panel.children.item(0).children.item(1);
+    if (displayState === "block" || forceClose) { 
+        panelContent.style.display = "none"; 
+        panelArrow.style.webkitTransform = 'rotate(180deg)';
+        panelArrow.style.mozTransform = 'rotate(180deg)';
+        panelArrow.style.msTransform = 'rotate(180deg)';
+        panelArrow.style.oTransform = 'rotate(180deg)';
+        panelArrow.style.transform = 'rotate(180deg)';
+    }
+    else if (displayState === "none" || forceOpen) { 
+        panelContent.style.display = "block"; 
+        panelArrow.style.webkitTransform = 'rotate(0deg)';
+        panelArrow.style.mozTransform = 'rotate(0deg)';
+        panelArrow.style.msTransform = 'rotate(0deg)';
+        panelArrow.style.oTransform = 'rotate(0deg)';
+        panelArrow.style.transform = 'rotate(0deg)';
+    }
+}
+
 function drawTables(tables) {
     usedGroupIds = {};
     tables.forEach(table => {
-        let div = document.createElement('div');
-        div.setAttribute("data-role", "panel");
-        div.setAttribute("data-title-caption", table.tableName);
-        div.setAttribute("data-collapsible", "true");
-        div.setAttribute("data-width", "fit-content");
-        div.setAttribute("data-height", "fit-content");
-        div.setAttribute("data-on-panel-create", "positionPanel(" + table.xCoordinate + ", " + table.yCoordinate + ");");
-        div.setAttribute("id", "panel-" + table.tableId);
-        div.classList.add("table-panel");
+        createPanelElement(tableToHTML(table.tableId, table.tableName, table.tableFields), table);
         tablePanelIds.push("panel-" + table.tableId);
-        div.style.width = "fit-content";
-        div.innerHTML = tableToHTML(table.tableId, table.tableName, table.tableFields);
-        document.getElementById("database-vis").appendChild(div);
         if (table.groupId !== "null" && table.groupId !== null) { 
             if (!usedGroupIds.hasOwnProperty(table.groupId)) { usedGroupIds[table.groupId] = []; }
             usedGroupIds[table.groupId].push(table.tableId);

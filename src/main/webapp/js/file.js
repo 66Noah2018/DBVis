@@ -29,7 +29,7 @@ function checkDirValidity(){
     const http = new XMLHttpRequest(); // servletrequestpost doesnt work here, loading response somehow takes too long
     http.open("POST", "../dbvisservlet?function=directoryExists", true);
     http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    http.send(JSON.stringify(directory));
+    
     http.onload = function(){ 
         directoryExists = JSON.parse(http.responseText).directoryExists;
         if (directoryExists && directory !== "") { 
@@ -41,6 +41,7 @@ function checkDirValidity(){
             document.getElementById("selected-working-dir-edit").style.visibility = 'visible';
         }
     };
+    http.send(JSON.stringify(directory));
 }
 
 function checkDefaultDirValidity(){
@@ -53,7 +54,7 @@ function checkDefaultDirValidity(){
     const http = new XMLHttpRequest(); // servletrequestpost doesnt work here, loading response somehow takes too long
     http.open("POST", "../dbvisservlet?function=directoryExists", true);
     http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    http.send(JSON.stringify(directory));
+    
     http.onload = function(){ 
         directoryExists = JSON.parse(http.responseText).directoryExists;
         if (directoryExists && directory !== "") { 
@@ -65,6 +66,7 @@ function checkDefaultDirValidity(){
             document.getElementById("selected-working-dir-edit").style.visibility = 'visible';
         }
     };
+    http.send(JSON.stringify(directory));
 }
 
 function displayErrorMessage(formGroupId, errorMessage){
@@ -108,11 +110,12 @@ function editProject(isNew = false){
     const http = new XMLHttpRequest(); 
     http.open("POST", url, true);
     http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    http.send(JSON.stringify(projectJson));
+    
     http.onload = function(){
         document.getElementById("create-project-load").style.display = "hidden";
         window.location.href = "../index.html";
-    };    
+    }; 
+    http.send(JSON.stringify(projectJson));
 }
 
 function editProjectProperties(){
@@ -150,7 +153,7 @@ function processOpen(projectName){
     const http = new XMLHttpRequest(); // servletrequestpost doesnt work here, loading response somehow takes too long
     http.open("POST", "../dbvisservlet?function=open", true);
     http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    http.send(JSON.stringify(projectName));
+    
     http.onload = function(){ 
         let returnValue = JSON.parse(http.responseText).response;
         target.style.display = "none";
@@ -163,6 +166,7 @@ function processOpen(projectName){
             window.location.href = "../index.html";
         }
     };
+    http.send(JSON.stringify(projectName));
 }
 
 /**
@@ -216,8 +220,18 @@ function servletRequestPost(url, body) {
     let response = null;
     http.open("POST", url, true);
     http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    
+    http.onreadystatechange = function(){ 
+        console.log(http.readyState);
+        while (http.readyState !== 4) {}
+        if (http.readyState === 4) {
+            console.log(http.responseText);
+            response = http.responseText;
+//            console.log("set response")
+        }
+    };
     http.send(JSON.stringify(body));
-    http.onload = function(){ response = http.responseText; };
+    while (response === null) {}
     return response;
 }
 

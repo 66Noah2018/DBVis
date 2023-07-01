@@ -261,3 +261,29 @@ tr>td {
 #selected-databasefile-group{
     margin-left: 10px;
 }
+
+.panel-arrow{
+    width: fit-content;
+    float: right;
+    margin-left: 10px;
+    border: 0px;
+    background-color: inherit;
+    -webkit-transition: all 0.5s ease-in-out;
+    -moz-transition: all 0.5s ease-in-out;
+    -o-transition: all 0.5s ease-in-out;
+    transition: all 0.5s ease-in-out;
+}
+
+.panel-title{
+    width: fit-content;
+    float: left;
+    border-bottom: 0 !important;
+}
+
+.panel{
+    width: fit-content;
+}
+
+.panel-body{
+    display: block;
+}

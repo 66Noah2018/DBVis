@@ -20,22 +20,36 @@ function positionGroup(xCoordinate, yCoordinate, width, length, groupId) {
     latestPanel.setAttribute("id", "group-panel-" + groupId);
     latestPanel.style.left = xCoordinate + "px";
     latestPanel.style.top = yCoordinate + "px";
-    const http = new XMLHttpRequest();
-    http.open("POST", "./dbvisservlet?function=setGroupLocationAttributes", true);
-    http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    http.send(JSON.stringify({
+    let response = servletRequestPost("./dbvisservlet?function=setGroupLocationAttributes", {
         "groupId": groupId,
         "xCoordinate": xCoordinate,
         "yCoordinate": yCoordinate,
         "width": width,
         "length": length
-    }));
-    http.onload = function(){
-        response = JSON.parse(http.responseText);
+    });
+//    const http = new XMLHttpRequest("./dbvisservlet?function=setGroupLocationAttributes", JSON.stringify({
+//        "groupId": groupId,
+//        "xCoordinate": xCoordinate,
+//        "yCoordinate": yCoordinate,
+//        "width": width,
+//        "length": length
+//    }));
+//    http.open("POST", "./dbvisservlet?function=setGroupLocationAttributes", true);
+//    http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+//    
+//    http.onload = function(){
+        console.log(response);
+        response = JSON.parse(response);
         groups = response.groups;
-        console.log(groups);
         repositionLeaderLines();
-    };
+//    };
+//    http.send(JSON.stringify({
+//        "groupId": groupId,
+//        "xCoordinate": xCoordinate,
+//        "yCoordinate": yCoordinate,
+//        "width": width,
+//        "length": length
+//    }));
 }
 
 function updateGroupPosition(groupId){
@@ -56,18 +70,18 @@ function updateGroupPosition(groupId){
     panel.style.top = newY + "px";
     panel.style.transform = "translate(0px, 0px)";
     // update state
-    const http = new XMLHttpRequest();
-    http.open("POST", "./dbvisservlet?function=setGroupLocationAttributes", true);
-    http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    http.send(JSON.stringify({
+    let response = servletRequestPost("./dbvisservlet?function=setGroupLocationAttributes", {
         "groupId": groupId,
         "xCoordinate": newX,
         "yCoordinate": newY,
         "width": width,
         "length": length
-    }));
-    http.onload = function(){
-        response = JSON.parse(http.responseText);
+    });
+//    const http = new XMLHttpRequest();
+//    http.open("POST", "./dbvisservlet?function=setGroupLocationAttributes", true);
+//    http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+//    http.onload = function(){
+        response = JSON.parse(response);
         groups = response.groups;
         // move tables in this group
         const tablesToMove = usedGroupIds[groupId];
@@ -78,24 +92,35 @@ function updateGroupPosition(groupId){
             const currY = parseFloat((tablePanel.style.top).replace("px", ""));
             const newTableX = currX + diffX;
             const newTableY = currY + diffY;
-            console.log(newTableX, newTableY);
             tablePanel.style.left = newTableX + "px";
             tablePanel.style.top = newTableY + "px";
             // update table data
-            http.open("POST", "./dbvisservlet?function=setCoordinates", true);
-            http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-            http.send(JSON.stringify({
+            servletRequestPost("./dbvisservlet?function=setCoordinates",{
                 "panelId": "panel-" + tableId,
                 "x": newTableX,
                 "y": newTableY
-            }));
+            });
+//            http.open("POST", "./dbvisservlet?function=setCoordinates", true);
+//            http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+//            http.send(JSON.stringify({
+//                "panelId": "panel-" + tableId,
+//                "x": newTableX,
+//                "y": newTableY
+//            }));
             repositionLeaderLines();
         });
         state = JSON.parse(servletRequest("./dbvisservlet?function=getState")).state;
-    };
+//    };
+//    http.send(JSON.stringify({
+//        "groupId": groupId,
+//        "xCoordinate": newX,
+//        "yCoordinate": newY,
+//        "width": width,
+//        "length": length
+//    }));
 }
 
-async function drawGroups(groupIds) {
+function drawGroups(groupIds) {
     groupPanelIds = [];
     for (const groupId in groupIds) {
         const panel = document.getElementById("group-panel-" + groupId);
@@ -116,37 +141,45 @@ async function drawGroups(groupIds) {
         div.style.height = group.length + "px";
         div.classList.add("group-panel");
         groupPanelIds.push("group-" + group.groupId);
-        await document.getElementById("database-vis").appendChild(div);
+        document.getElementById("database-vis").appendChild(div);
+        console.log("drew a group");
     }
 }
 
-async function addToGroup(groupId){ // TODO: option: remove table from group --> option for no groups? separate button for no groups?
+function addToGroup(groupId){ // TODO: option: remove table from group --> option for no groups? separate button for no groups?
     // if group is already drawn, only move table, update dimensions and check other tables
     if (selectedTableId === null) { return; }
     const oldTableData = state.filter(table => table.tableId === selectedTableId)[0];
     result = JSON.parse(servletRequest("./dbvisservlet?function=addToGroup&tableId=" + selectedTableId + "&groupId=" + groupId));
+    console.log(result)
     state = result.state;
     groups = result.groups;
+    console.log("wtf")
     if (!usedGroupIds.hasOwnProperty(groupId)) { usedGroupIds[groupId] = []; }
     usedGroupIds[groupId].push(selectedTableId);
     
     if (usedGroupIds[groupId].length === 1) {
         // draw group
-        await drawGroups(usedGroupIds);
+        console.log("gonna draw")
+        drawGroups(usedGroupIds);
     }
+    console.log("gonna move")
     moveTableIntoGroup(groupId);
+    console.log("moved")
     
     // change group size
-    await updateGroupDimensions(groupId);
+    updateGroupDimensions(groupId);
     
     if (oldTableData.groupId !== "null" && oldTableData.groupId !== null) {
         usedGroupIds[oldTableData.groupId] = (usedGroupIds[oldTableData.groupId].filter(tableId => tableId !== selectedTableId));
-        await updateGroupDimensions(oldTableData.groupId);
+        updateGroupDimensions(oldTableData.groupId);
         // check if old group is now empty -> if so delete
         if (usedGroupIds[oldTableData.groupId] === []) {
             document.getElementById("group-panel-" + oldTableData.groupId).remove();
         }
     }
+    console.log("moved everything")
+    repositionLeaderLines();
 }
 
 function moveTableIntoGroup(groupId){
@@ -170,7 +203,8 @@ function moveTableIntoGroup(groupId){
         tableXMin = groupXMin + 10;
         tablePanel.style.left = tableXMin + "px";
     } else {
-        tablePanel.style.top = Math.max(tableYMin, (groupYMin + panelCaptionHeight + 10)) + "px";
+        tableYMin = Math.max(tableYMin, (groupYMin + panelCaptionHeight + 10));
+        tablePanel.style.top = tableYMin + "px";
     }
 }
 
@@ -199,19 +233,24 @@ function moveOtherTables (groupId) {
             tablePanel.style.left = tableXMin + "px";
         }
         
-        const http = new XMLHttpRequest(); 
-        http.open("POST", "./dbvisservlet?function=setCoordinates", true);
-        http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-        http.send(JSON.stringify({
+        servletRequestPost("./dbvisservlet?function=setCoordinates", {
             "panelId": "panel-" + tableId,
             "x": tableXMin,
             "y": tableYMin
-        }));
+        });
+//        const http = new XMLHttpRequest(); 
+//        http.open("POST", "./dbvisservlet?function=setCoordinates", true);
+//        http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+//        http.send(JSON.stringify({
+//            "panelId": "panel-" + tableId,
+//            "x": tableXMin,
+//            "y": tableYMin
+//        }));
     });
     state = JSON.parse(servletRequest("./dbvisservlet?function=getState")).state;
 }
 
-async function updateGroupDimensions (groupId){
+function updateGroupDimensions (groupId){
     const tablesInGroup = usedGroupIds[groupId];
     const group = groups.filter(group => group.groupId = groupId);
     const leftOffset = group.xCoordinate;
@@ -238,29 +277,46 @@ async function updateGroupDimensions (groupId){
     neededLength = maxTableY - minTableY + 20;
     const newLeftOffset = Math.max(0, (minTableX - 10));
     const newTopOffset = Math.max(0, (minTableY - 10) - panelCaptionHeight);
+    console.log("fuck")
     // update state
-    const http = new XMLHttpRequest(); 
-    http.open("POST", "./dbvisservlet?function=setGroupLocationAttributes", true);
-    http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    http.send(JSON.stringify({
+    let response = servletRequestPost("./dbvisservlet?function=setGroupLocationAttributes", {
         "groupId": groupId,
         "xCoordinate": newLeftOffset,
         "yCoordinate": newTopOffset,
         "width": neededWidth,
         "length": neededLength
-    }));
-    http.onload = function(){
+    });
+    console.log("hell")
+//    const http = new XMLHttpRequest("./dbvisservlet?function=setGroupLocationAttributes", JSON.stringify({
+//        "groupId": groupId,
+//        "xCoordinate": newLeftOffset,
+//        "yCoordinate": newTopOffset,
+//        "width": neededWidth,
+//        "length": neededLength
+//    })); 
+//    http.open("POST", "./dbvisservlet?function=setGroupLocationAttributes", true);
+//    http.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+//    
+//    http.onload = function(){
         // show group updates in visualizer
         let groupPanelContent = document.getElementById("group-" + groupId);
         let groupPanel = document.getElementById("group-panel-" + groupId);
+        console.log(groupPanel);
         groupPanelContent.style.width = neededWidth + 5 + "px";
         groupPanelContent.style.height = neededLength + 5 + "px";
         groupPanel.style.top = newTopOffset + "px";
         groupPanel.style.left = newLeftOffset + "px";
-        response = http.responseText;
+//        response = http.responseText;
         groups = JSON.parse(response).groups;
         console.log(groups);
         moveOtherTables(groupId);
-    };
+//    };
+//    http.send(JSON.stringify({
+//        "groupId": groupId,
+//        "xCoordinate": newLeftOffset,
+//        "yCoordinate": newTopOffset,
+//        "width": neededWidth,
+//        "length": neededLength
+//    }));
 }
 
